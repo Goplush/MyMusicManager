@@ -13,6 +13,11 @@
             <name>aliyun maven</name>
             <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
         </repository>
+        <repository>
+             <id>activiti-repos2</id>
+             <name>Activiti Repository 2</name>
+             <url>https://app.camunda.com/nexus/content/groups/public</url>
+        </repository>
     </repositories>
 
     <properties>
@@ -21,13 +26,15 @@
     </properties>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
-        <!-- Java Redis 依赖 -->
+        <!-- https://mvnrepository.com/artifact/org.mongodb/mongodb-driver -->
         <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>4.2.3</version>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
+            <version>3.12.11</version>
         </dependency>
+
+
+
     </dependencies>
 
 </project>
