@@ -6,6 +6,7 @@
                 <name>xxx</name>
             </singer>
         </singers>
+        <url>xxx.yyy/zzz.aaa</url>
         <tags>
             <tag>
                 aaa
@@ -14,6 +15,25 @@
                 bbb
             </tag>
         </tags>
-        <url>xxx.yyy/zzz.aaa</url>
+        <album>xxx</album>
     </song>
 </songs>
+
+<comments>
+    <comment>
+        <song>
+            <name>aaa</name>
+            <singers>
+                <singer>
+                    <name>xxx</name>
+                </singer>
+            </singers>
+        </song>
+        <user>
+            <uid>123</uid>
+            <uname>qwe</uname>
+        </user>
+        <date>20xx.yy.zz</date>
+        <content>“全体目光向我看齐！”</content>
+    </comment>
+</comments>
