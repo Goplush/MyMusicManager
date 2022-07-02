@@ -81,16 +81,12 @@ class serverThread extends Thread
         SongAddTask (SongAddRequest sar){
             this.song_request = sar;
         }
-        private TikaFileDistinguisher distinguisher = new TikaFileDistinguisher();
 
         String MusicStore2Local(String ori_url){
             //此处为将外链的音乐转存到本地
             return ori_url;
         }
         public void Task() {
-            if(!distinguisher.IsAudio(song_request.getOrigin_url())){
-                //此处为导入的url不是音频时的异常处理代码
-            }
             //将歌曲保存到服务器后返回本地服务器的url
             String local = MusicStore2Local(song_request.getOrigin_url());
             List<ServerAddress> addrs = new ArrayList<ServerAddress>();
