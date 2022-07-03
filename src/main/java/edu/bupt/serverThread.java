@@ -59,7 +59,6 @@ class serverThread extends Thread
 
 
 
-    //以下是服务器支持的动作
     /*****
      * 用户请求新增标签，直接添加到管理员的请求向量中
      */

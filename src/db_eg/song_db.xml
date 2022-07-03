@@ -1,0 +1,21 @@
+<songs>
+    <song>
+        <name>xxx</name>
+        <singers>
+            <singer>
+                <name>xxx</name>
+            </singer>
+        </singers>
+        <url>xxx.yyy/zzz.aaa</url>
+        <tags>
+            <tag>
+                aaa
+            </tag>
+            <tag>
+                bbb
+            </tag>
+        </tags>
+        <album>xxx</album>
+    </song>
+</songs>
+

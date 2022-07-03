@@ -66,4 +66,50 @@ class SongAddRequest{
     public Iterator<String> getTagIter(){
         return tags.iterator();
     }
+
+    //添加歌单的请求结构
+
+}
+class SongListAddRequest{
+    private String list_name;
+    private String user_id;
+    private ArrayList<String> song_names;
+    private ArrayList<String> song_albums;
+    public SongListAddRequest(String lname, String UID, ArrayList<String> snames,ArrayList<String> salbums){
+        list_name = lname;
+        user_id = UID;
+        song_names = snames;
+        song_albums = salbums;
+    }
+
+    public String getList_name() {
+        return list_name;
+    }
+
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public ArrayList<String> getSong_names() {
+        return song_names;
+    }
+
+    public void setSong_albums(ArrayList<String> song_albums) {
+        this.song_albums = song_albums;
+    }
+}
+class SongSearchWithAlbum{
+    private String name, album;
+    public SongSearchWithAlbum(String sname, String salbum){
+        this.name = sname;
+        this.album = salbum;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getAlbum() {
+        return album;
+    }
 }
