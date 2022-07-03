@@ -72,12 +72,12 @@ class SongAddRequest{
 }
 class SongListAddRequest{
     private String list_name;
-    private String user_id;
+    private String user_name;
     private ArrayList<String> song_names;
     private ArrayList<String> song_albums;
-    public SongListAddRequest(String lname, String UID, ArrayList<String> snames,ArrayList<String> salbums){
+    public SongListAddRequest(String lname, String User_name, ArrayList<String> snames,ArrayList<String> salbums){
         list_name = lname;
-        user_id = UID;
+        user_name = User_name;
         song_names = snames;
         song_albums = salbums;
     }
@@ -86,21 +86,21 @@ class SongListAddRequest{
         return list_name;
     }
 
-    public String getUser_id() {
-        return user_id;
+    public String getUser_name() {
+        return user_name;
     }
 
     public ArrayList<String> getSong_names() {
         return song_names;
     }
 
-    public void setSong_albums(ArrayList<String> song_albums) {
-        this.song_albums = song_albums;
+    public ArrayList<String> getSong_albums() {
+        return song_albums;
     }
 }
-class SongSearchWithAlbum{
+class SongSearchWithNameAndAlbum {
     private String name, album;
-    public SongSearchWithAlbum(String sname, String salbum){
+    public SongSearchWithNameAndAlbum(String sname, String salbum){
         this.name = sname;
         this.album = salbum;
     }
@@ -111,5 +111,33 @@ class SongSearchWithAlbum{
 
     public String getAlbum() {
         return album;
+    }
+}
+class AddSingleSongToListRequest {
+    private String user_name;
+    private String list_name;
+    private String song_name;
+    private String song_album;
+    public AddSingleSongToListRequest(String uname, String lname, String sname, String salbum){
+        this.list_name = lname;
+        this.song_album = salbum;
+        this.song_name = sname;
+        this.user_name = uname;
+    }
+
+    public String getUser_name() {
+        return user_name;
+    }
+
+    public String getList_name() {
+        return list_name;
+    }
+
+    public String getSong_name() {
+        return song_name;
+    }
+
+    public String getSong_album() {
+        return song_album;
     }
 }

@@ -4,12 +4,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class UserClient {
-    private Socket socket;
     private String host = "localhost";
     private String command;
     private int port = 9090;
@@ -18,29 +16,23 @@ public class UserClient {
     private ObjectOutputStream object_ostream;
     private ObjectInputStream object_istream;
     public UserClient(){
-        try {
-            socket = new Socket(host,port);
-            if(socket.isConnected()){
-                scanner = new Scanner(System.in);
-                object_ostream = new ObjectOutputStream(socket.getOutputStream());
-                object_istream = new ObjectInputStream(socket.getInputStream());
-            }
-            //
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        scanner = new Scanner(System.in);
 
     }
     //以下为客户端行为
 
     private  boolean SongSearch(String sname, String salbum){
-        SongSearchWithAlbum search = new SongSearchWithAlbum(sname, salbum);
+        SongSearchWithNameAndAlbum search = new SongSearchWithNameAndAlbum(sname, salbum);
         try {
+            Socket socket = new Socket(host,port);
+            if(socket.isConnected()){
+                object_ostream = new ObjectOutputStream(socket.getOutputStream());
+                object_istream = new ObjectInputStream(socket.getInputStream());
+            }
             object_ostream.flush();
             object_ostream.writeObject(search);
             Boolean have_song = (Boolean) object_istream.readObject();
+            socket.close();
             return have_song.booleanValue();
         } catch (IOException e) {
             e.printStackTrace();
@@ -49,30 +41,55 @@ public class UserClient {
         }
         return false;
     }
-    private boolean AddSongList(int UID){
+    private boolean AddSongList(String UID){
         String list_name;
         ArrayList<String> song_names = new ArrayList<String>();
         ArrayList<String> song_albums = new ArrayList<String>();
+        Socket socket = null;
+        try {
+            socket = new Socket(host,port);
+            if(socket.isConnected()){
+                object_ostream = new ObjectOutputStream(socket.getOutputStream());
+                object_istream = new ObjectInputStream(socket.getInputStream());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         System.out.println("请输入歌单名");
         list_name = scanner.nextLine();
         String tmp_name = "\0";
         String tmp_album = "\0";
+        SongListAddRequest list_request = null;
         while (true){
             System.out.println("请输入歌名，若结束请输入分号");
             tmp_name = scanner.nextLine();
             if(tmp_name.equals(";")){break;}
             System.out.println("请输入歌名对应的专辑");
             tmp_album = scanner.nextLine();
-            if()
+            if(!SongSearch(tmp_name,tmp_album)){
+                System.out.println("We don't have this song!");
+                continue;
+            }
+            song_names.add(tmp_name);
+            song_albums.add(tmp_album);
         }
-        SongListAddRequest list_request = new SongListAddRequest()
+        list_request = new SongListAddRequest(list_name, UID, song_names, song_albums);
+        try {
+            object_ostream.writeObject(list_request);
+            Boolean result = (Boolean) object_istream.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
 
 
     //以下为各级菜单
-    private void IntoMainMenu(int UID){
+    private void IntoMainMenu(String Uname){
         while (true){
             System.out.println(menus.main_menu+"请输入您的指令");
             command = scanner.next();
@@ -80,7 +97,7 @@ public class UserClient {
                 return;
             }
             if(command.equals("1")){
-                IntoRecommendMenu(UID);
+                IntoRecommendMenu(Uname);
             }
 
 
@@ -90,9 +107,9 @@ public class UserClient {
 
     /***
      *已登录用户的歌曲推荐选单
-     * @param UID：用户ID
+     * @param Uname: username
      */
-    private void IntoRecommendMenu(int UID){
+    private void IntoRecommendMenu(String Uname){
         while (true){
             System.out.println(menus.recommend_menu_logged_in+"请输入您的指令");
             command = scanner.nextLine();

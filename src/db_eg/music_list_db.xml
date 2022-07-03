@@ -1,12 +1,12 @@
-<music_lists>
-    <music_list>
+<musiclists>
+    <musiclist>
         <name>aaa</name>
-        <uid>123</uid>
+        <user_name>123</user_name>
         <songs>
             <song>
                 <name>xxx</name>
                 <album>yyy</album>
             </song>
         </songs>
-    </music_list>
-</music_lists>
+    </musiclist>
+</musiclists>
