@@ -1,7 +1,7 @@
-package edu.bupt.SERV;
+package edu.bupt.login_related.SERV;
 
 import edu.bupt.DAO.UserDAO;
-import edu.bupt.FACTORY.UserFactory;
+import edu.bupt.login_related.FACTORY.UserFactory;
 import edu.bupt.VO.User;
 
 import javax.servlet.ServletException;

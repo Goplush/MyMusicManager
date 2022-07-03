@@ -1,4 +1,4 @@
-package edu.bupt.FACTORY;
+package edu.bupt.login_related.FACTORY;
 
 import edu.bupt.DAO.UserDAO;
 import edu.bupt.DAO.UserDAOProxy;

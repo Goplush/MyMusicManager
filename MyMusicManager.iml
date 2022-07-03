@@ -16,5 +16,6 @@
     <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-core:3.12.11" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tika:tika-core:1.0" level="project" />
     <orderEntry type="library" name="Maven: javazoom:jlayer:1.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.mortbay.jetty:servlet-api:2.5-20081211" level="project" />
   </component>
 </module>

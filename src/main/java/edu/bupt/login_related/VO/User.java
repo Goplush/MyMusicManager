@@ -1,4 +1,4 @@
-package edu.bupt.VO;
+package edu.bupt.login_related.VO;
 
 public class User {
 

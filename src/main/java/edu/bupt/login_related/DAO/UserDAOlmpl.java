@@ -1,7 +1,7 @@
-package edu.bupt.DAO;
+package edu.bupt.login_related.DAO;
 
-import DB.MySQLConnection;
-import edu.bupt.VO.User;
+import edu.bupt.login_related.DB.MySQLConnection;
+import edu.bupt.login_related.VO.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

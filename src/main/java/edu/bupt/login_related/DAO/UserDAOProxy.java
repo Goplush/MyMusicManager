@@ -1,6 +1,6 @@
-package edu.bupt.DAO;
+package edu.bupt.login_related.DAO;
 
-import edu.bupt.VO.User;
+import edu.bupt.login_related.VO.User;
 import java.sql.SQLException;
 
 public class UserDAOProxy {

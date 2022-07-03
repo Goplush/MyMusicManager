@@ -1,4 +1,4 @@
-package DB;
+package edu.bupt.login_related.DB;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

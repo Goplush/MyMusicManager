@@ -106,7 +106,7 @@ class serverThread extends Thread
 
                 //执行插入动作
                 Document doc = new Document("title", song_request.getName()).append("singers", song_request.getSingers())
-                        .append("album", song_request.getAlbum()).append("tags", song_request.getTags()).append("url", local);
+                        .append("album", song_request.getAlbum()).append("url", local);
                 songs_table.insertOne(doc);
             }catch (Exception e){
                 e.printStackTrace();
@@ -261,6 +261,60 @@ class serverThread extends Thread
         }
     }
 
+    /*******
+     * 将标签赋给歌曲
+     */
+    class AddSingleTokenToSongTask{
+        private AddSingleTokenToSongRequest request;
+        public AddSingleTokenToSongTask(AddSingleTokenToSongRequest asttsr){
+            this.request = asttsr;
+        }
+        public void task(){
+            List<ServerAddress> addrs = new ArrayList<ServerAddress>();
+            addrs.add(serverAddress);
+            List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+            credential = MongoCredential.createScramSha1Credential(
+                    "musicmanageadmin", "MusicManageDB", "qBS42Luz$s7FU&J8".toCharArray());
+            credentials.add(credential);
+            try {
+                //通过连接认证获取MongoDB连接
+                MongoClient mongoClient = new MongoClient(addrs, credentials);
+                MongoDatabase mongoDatabase = mongoClient.getDatabase("MusicManageDB");
+                System.out.println("Connected to MongoDB");
+
+                //选择musiclists表（集合）
+                MongoCollection<Document> lists = mongoDatabase.getCollection("Songs");
+                System.out.println("collection musiclists selected");
+
+                //按要求插入
+                //以下语句用于定位歌曲
+                BasicDBObject query = new BasicDBObject();
+                query.put("name", request.getSong_name());
+                query.put("user_name", request.getSong_album());
+                //以下语句用于将Token插入对应的歌曲文档中
+                BasicDBObject update = new BasicDBObject();
+                update.put("$push",new BasicDBObject("tokens",request.getToken()));
+                lists.updateOne(query, update);
+
+
+            }catch (Exception e){
+                e.printStackTrace();
+                System.out.println("\n"+e.getMessage());
+                //歌单创建失败后执行的代码
+
+            }
+        }
+
+    }
+
+    /*******
+     * 为歌曲添加/编辑简介的功能实现
+     */
+    class AddSongIntroTask{
+        private AddSongIntroRequest request=null;
+        public
+    }
+
 
     @Override
     public void run()
@@ -299,6 +353,10 @@ class serverThread extends Thread
                 AlbumAndNameSongSearchTask task = new AlbumAndNameSongSearchTask((SongSearchWithNameAndAlbum) recv_obj);
                 task.task();
                 done = true;
+            }else if(AddSingleSongToListRequest.class.isInstance(recv_obj)){
+                AddSingleSongToListTask task = new AddSingleSongToListTask((AddSingleSongToListRequest) recv_obj);
+                task.task();
+                done= true;
             }
             // else if …….. //在此可加入服务器的其他指令
             else

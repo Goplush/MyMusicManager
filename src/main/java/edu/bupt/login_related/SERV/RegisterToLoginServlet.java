@@ -1,4 +1,4 @@
-package edu.bupt.SERV;
+package edu.bupt.login_related.SERV;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet(urlPatterns = "/registerToLoginServlet")
-public class RegisterToLoginServlet {
+public class egisterToLoginServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         // 拿到注册的账号密码

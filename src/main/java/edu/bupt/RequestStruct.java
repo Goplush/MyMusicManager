@@ -141,3 +141,47 @@ class AddSingleSongToListRequest {
         return song_album;
     }
 }
+class AddSingleTokenToSongRequest {
+    private String song_name;
+    private String song_album;
+    private String token;
+    public AddSingleTokenToSongRequest(String sname, String salbum, String token){
+        this.song_name= sname;
+        this.song_album = salbum;
+        this.token=token;
+    }
+
+    public String getSong_name() {
+        return song_name;
+    }
+
+    public String getSong_album() {
+        return song_album;
+    }
+
+    public String getToken() {
+        return token;
+    }
+}
+class AddSongIntroRequest{
+    private String intro;
+    private String song_name;
+    private String song_album;
+    public AddSongIntroRequest(String intro, String sname, String salbum){
+        this.intro= intro;
+        this.song_album = salbum;
+        this.song_name= sname;
+    }
+
+    public String getIntro() {
+        return intro;
+    }
+
+    public String getSong_name() {
+        return song_name;
+    }
+
+    public String getSong_album() {
+        return song_album;
+    }
+}
