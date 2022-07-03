@@ -47,8 +47,6 @@ class serverThread extends Thread
 
     /********
      * 以下为服务器支持的指令
-     *
-     *
      */
 //存放用户歌曲标签请求的向量
     private Vector<SongTokenAddRequest> token_request_vec = new Vector<SongTokenAddRequest>();
@@ -312,7 +310,9 @@ class serverThread extends Thread
      */
     class AddSongIntroTask{
         private AddSongIntroRequest request=null;
-        public
+        public AddSongIntroTask(AddSongIntroRequest asir){
+            this.request = asir;
+        }
     }
 
 
