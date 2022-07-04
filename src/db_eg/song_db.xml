@@ -7,10 +7,11 @@
             </singer>
         </singers>
         <url>xxx.yyy/zzz.aaa</url>
-        <tokens>
+        <tags>
             ["t1","t2"]
-        </tokens>
+        </tags>
         <album>xxx</album>
+        <intro>123</intro>
         <plays>0</plays>
     </song>
 </songs>

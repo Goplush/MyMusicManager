@@ -8,9 +8,10 @@ import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Sorts;
 import org.bson.Document;
 
-import javax.management.Query;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -83,7 +84,7 @@ class serverThread extends Thread
             //此处为将外链的音乐转存到本地
             return ori_url;
         }
-        public void Task() {
+        public void task() {
             //将歌曲保存到服务器后返回本地服务器的url
             String local = MusicStore2Local(song_request.getOrigin_url());
             List<ServerAddress> addrs = new ArrayList<ServerAddress>();
@@ -104,8 +105,15 @@ class serverThread extends Thread
 
                 //执行插入动作
                 Document doc = new Document("title", song_request.getName()).append("singers", song_request.getSingers())
-                        .append("album", song_request.getAlbum()).append("url", local);
+                        .append("album", song_request.getAlbum()).append("url", local).append("heat",0);
                 songs_table.insertOne(doc);
+                Iterator<String> iter = song_request.getTagIter();
+                while (iter.hasNext()){
+                    AddSingleTokenToSongTask token_task = new AddSingleTokenToSongTask(new SongTokenAddRequest(
+                            song_request.getName(), song_request.getAlbum(), iter.next()
+                    ));
+                    token_task.task();
+                }
             }catch (Exception e){
                 e.printStackTrace();
                 System.out.println("\n"+e.getMessage());
@@ -147,6 +155,9 @@ class serverThread extends Thread
                 BasicDBObject query = new BasicDBObject();
                 query.put("name",sname);
                 query.put("album",salbum);
+                BasicDBObject field = new BasicDBObject();
+                field.put("name","123");
+                field.put("singers",new Document());
                 FindIterable<Document> result_set = songs_table.find(query).skip(0);
                 output.writeObject(result_set);
 
@@ -155,6 +166,40 @@ class serverThread extends Thread
                 e.printStackTrace();
                 System.out.println("\n"+e.getMessage());
                 //插入音乐失败后执行的代码
+            }
+        }
+        public FindIterable<Document> server_search(){
+            String sname = search_struct.getName();
+            String salbum = search_struct.getAlbum();
+            List<ServerAddress> addrs = new ArrayList<ServerAddress>();
+            addrs.add(serverAddress);
+            List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+            credential = MongoCredential.createScramSha1Credential(
+                    "musicmanageadmin", "MusicManageDB", "qBS42Luz$s7FU&J8".toCharArray());
+            credentials.add(credential);
+            try {
+                //通过连接认证获取MongoDB连接
+                MongoClient mongoClient = new MongoClient(addrs, credentials);
+                MongoDatabase mongoDatabase = mongoClient.getDatabase("MusicManageDB");
+                System.out.println("Connected to MongoDB");
+
+                //选择Songs表（集合）
+                MongoCollection<Document> songs_table = mongoDatabase.getCollection("Songs");
+                System.out.println("collection Songs selected");
+
+                //按要求查询音乐
+                BasicDBObject query = new BasicDBObject();
+                query.put("name",sname);
+                query.put("album",salbum);
+                BasicDBObject field = new BasicDBObject();
+                field.put("name","123");
+                field.put("singers",new Document());
+                FindIterable<Document> result_set = songs_table.find(query).skip(0);
+                return result_set;
+            }catch (Exception e){
+                e.printStackTrace();
+                System.out.println("\n"+e.getMessage());
+                return null;
             }
         }
 
@@ -197,6 +242,14 @@ class serverThread extends Thread
                 while (snames_to_be_added_iter.hasNext()){
                     tmp_salbum = albums_to_be_added_iter.next();
                     tmp_sname = snames_to_be_added_iter.next();
+                    SongSearchWithNameAndAlbum search_request = new SongSearchWithNameAndAlbum(
+                            tmp_sname,tmp_salbum
+                    );
+                    AlbumAndNameSongSearchTask task0 = new AlbumAndNameSongSearchTask(search_request);
+                    FindIterable<Document>res_set =  task0.server_search();
+                    if(!res_set.iterator().hasNext()){
+                        return;
+                    }
                     AddSingleSongToListRequest request1 = new AddSingleSongToListRequest(request.getUser_name(),
                             request.getList_name(),tmp_sname,tmp_salbum);
                     AddSingleSongToListTask task = new AddSingleSongToListTask(request1);
@@ -209,8 +262,6 @@ class serverThread extends Thread
                 //歌单创建失败后执行的代码
             }
         }
-
-
     }
 
     /*****
@@ -263,9 +314,9 @@ class serverThread extends Thread
      * 将标签赋给歌曲
      */
     class AddSingleTokenToSongTask{
-        private AddSingleTokenToSongRequest request;
-        public AddSingleTokenToSongTask(AddSingleTokenToSongRequest asttsr){
-            this.request = asttsr;
+        private SongTokenAddRequest request;
+        public AddSingleTokenToSongTask(SongTokenAddRequest star){
+            this.request = star;
         }
         public void task(){
             List<ServerAddress> addrs = new ArrayList<ServerAddress>();
@@ -288,10 +339,10 @@ class serverThread extends Thread
                 //以下语句用于定位歌曲
                 BasicDBObject query = new BasicDBObject();
                 query.put("name", request.getSong_name());
-                query.put("user_name", request.getSong_album());
+                query.put("album", request.getSong_album());
                 //以下语句用于将Token插入对应的歌曲文档中
                 BasicDBObject update = new BasicDBObject();
-                update.put("$push",new BasicDBObject("tokens",request.getToken()));
+                update.put("$push",new BasicDBObject("tags",request.getToken()));
                 lists.updateOne(query, update);
 
 
@@ -313,9 +364,153 @@ class serverThread extends Thread
         public AddSongIntroTask(AddSongIntroRequest asir){
             this.request = asir;
         }
+        public void task(){
+            List<ServerAddress> addrs = new ArrayList<ServerAddress>();
+            addrs.add(serverAddress);
+            List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+            credential = MongoCredential.createScramSha1Credential(
+                    "musicmanageadmin", "MusicManageDB", "qBS42Luz$s7FU&J8".toCharArray());
+            credentials.add(credential);
+            try {
+                //通过连接认证获取MongoDB连接
+                MongoClient mongoClient = new MongoClient(addrs, credentials);
+                MongoDatabase mongoDatabase = mongoClient.getDatabase("MusicManageDB");
+                System.out.println("Connected to MongoDB");
+
+                //选择musiclists表（集合）
+                MongoCollection<Document> lists = mongoDatabase.getCollection("Songs");
+                System.out.println("collection musiclists selected");
+
+                //按要求插入
+                //以下语句用于定位歌曲
+                BasicDBObject query = new BasicDBObject();
+                query.put("name", request.getSong_name());
+                query.put("album", request.getSong_album());
+                //以下语句用于将Token插入对应的歌曲文档中
+                BasicDBObject update = new BasicDBObject();
+                update.put("$set",new BasicDBObject("intro",request.getIntro()));
+                lists.updateOne(query, update);
+            }catch (Exception e){
+                e.printStackTrace();
+                System.out.println("\n"+e.getMessage());
+                //歌单创建失败后执行的代码
+
+            }
+        }
     }
 
+    /******
+     * 对歌曲的评论的保存
+     */
+    class CommentAddTask {
+        private CommentAddRequest request = null;
+        public CommentAddTask(CommentAddRequest car){
+            this.request = car;
+        }
+        public void task(){
+            List<ServerAddress> addrs = new ArrayList<ServerAddress>();
+            addrs.add(serverAddress);
+            List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+            credential = MongoCredential.createScramSha1Credential(
+                    "musicmanageadmin", "MusicManageDB", "qBS42Luz$s7FU&J8".toCharArray());
+            credentials.add(credential);
+            try {
+                //通过连接认证获取MongoDB连接
+                MongoClient mongoClient = new MongoClient(addrs, credentials);
+                MongoDatabase mongoDatabase = mongoClient.getDatabase("MusicManageDB");
+                System.out.println("Connected to MongoDB");
 
+                //选择comments表（集合）
+                MongoCollection<Document> lists = mongoDatabase.getCollection("comments");
+                System.out.println("collection comments selected");
+
+                //按要求插入
+
+                Document doc = new Document("song_name",request.getSong_name()).append("song_album",request.getSong_album()).append("comment",request.getComment());
+                lists.insertOne(doc);
+            }catch (Exception e){
+                e.printStackTrace();
+                System.out.println("\n"+e.getMessage());
+                //歌单创建失败后执行的代码
+
+            }
+        }
+    }
+
+    /****
+     * 请求歌曲的评价
+     */
+    class ShowCommentTask{
+        private ShowCommentRequest request;
+        public ShowCommentTask(ShowCommentRequest scr){
+            this.request = scr;
+        }
+        public void task(){
+            List<ServerAddress> addrs = new ArrayList<ServerAddress>();
+            addrs.add(serverAddress);
+            List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+            credential = MongoCredential.createScramSha1Credential(
+                    "musicmanageadmin", "MusicManageDB", "qBS42Luz$s7FU&J8".toCharArray());
+            credentials.add(credential);
+            try {
+                //通过连接认证获取MongoDB连接
+                MongoClient mongoClient = new MongoClient(addrs, credentials);
+                MongoDatabase mongoDatabase = mongoClient.getDatabase("MusicManageDB");
+                System.out.println("Connected to MongoDB");
+
+                //选择comments表（集合）
+                MongoCollection<Document> lists = mongoDatabase.getCollection("comments");
+                System.out.println("collection musiclists selected");
+
+
+                BasicDBObject query = new BasicDBObject();
+                query.put("name", request.getSong_name());
+                query.put("album", request.getSong_album());
+
+                FindIterable result_set =  lists.find(query);
+                System.out.println(result_set.toString());
+
+            }catch (Exception e){
+                e.printStackTrace();
+                System.out.println("\n"+e.getMessage());
+                //歌单创建失败后执行的代码
+
+            }
+        }
+    }
+
+    class SongHeatRecommand{
+        public void task(){
+            List<ServerAddress> addrs = new ArrayList<ServerAddress>();
+            addrs.add(serverAddress);
+            List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+            credential = MongoCredential.createScramSha1Credential(
+                    "musicmanageadmin", "MusicManageDB", "qBS42Luz$s7FU&J8".toCharArray());
+            credentials.add(credential);
+            try {
+                //通过连接认证获取MongoDB连接
+                MongoClient mongoClient = new MongoClient(addrs, credentials);
+                MongoDatabase mongoDatabase = mongoClient.getDatabase("MusicManageDB");
+                System.out.println("Connected to MongoDB");
+
+                //选择Songs表（集合）
+                MongoCollection<Document> lists = mongoDatabase.getCollection("Songs");
+                System.out.println("collection musiclists selected");
+
+                FindIterable<Document> res_set = lists.find().sort(Sorts.descending("heat")) .batchSize(15)
+                        .projection(Projections.fields(Projections.include("name")));
+                Iterator<Document> doc_iter = res_set.iterator();
+                while (doc_iter.hasNext()){
+                    System.out.println(doc_iter.next().toJson());
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+                System.out.println("\n"+e.getMessage());
+                //歌单创建失败后执行的代码
+
+            }
+        }
+    }
     @Override
     public void run()
     { // 线程的执行方法
@@ -342,7 +537,7 @@ class serverThread extends Thread
             } else if (SongAddRequest.class.isInstance(recv_obj))
             {
                 SongAddTask task = new SongAddTask((SongAddRequest) recv_obj);
-                task.Task();
+                task.task();
                 done = true;
             } else if (SongTokenAddRequest.class.isInstance(recv_obj))
             { // 命令query
@@ -379,5 +574,23 @@ class serverThread extends Thread
         }
         recv_obj =null;
     }// end of run
+
+    public void main() {
+        /***
+        AddSongIntroRequest request = new AddSongIntroRequest(
+                "Ketty", "exp","funny mud pee"
+        );
+        AddSongIntroTask task = new AddSongIntroTask(request);
+         ****/
+        ArrayList<String>singers = new ArrayList<String>();
+        singers.add("三木");
+        ArrayList<String> tags = new ArrayList<>();
+        tags.add("情歌");
+        tags.add("看开");
+        SongAddRequest song_request = new SongAddRequest("http://mpge.5nd.com/2022/2022-3-3/3277460/1.mp3", "笑人生"
+            , "笑人生", singers,tags );
+        SongAddTask song_task = new SongAddTask(song_request);
+        song_task.task();
+    }
 }
 

@@ -29,7 +29,6 @@ public class ReceiveServer
             rServer = new ServerSocket(RECEIVE_PORT);
             // 初始化ServerSocket
             System.out.println("Welcome to the server!");
-            System.out.println(new Date());
             System.out.println("The server is ready!");
             System.out.println("Port: " + RECEIVE_PORT);
             while (true)

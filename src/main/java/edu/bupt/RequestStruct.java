@@ -8,19 +8,20 @@ public class RequestStruct {
 
 //歌曲标签添加请求结构
 class SongTokenAddRequest{
-    private String song_name, new_token_name;
-    private ArrayList<String> singers;
-    SongTokenAddRequest(String sname, ArrayList<String> singers, String token_name){
-        this.singers = singers;
-        new_token_name = token_name;
+    private String song_name, token;
+    String song_album;
+    SongTokenAddRequest(String sname, String salbum, String token_name){
+        this.song_name = sname;
+        this.song_album = salbum;
+        token = token_name;
     }
 
-    public String getNew_token_name() {
-        return new_token_name;
+    public String getToken() {
+        return token;
     }
 
-    public Iterator<String> getSingerIter(){
-        return singers.iterator();
+    public String getSong_album() {
+        return song_album;
     }
 
     public String getSong_name() {
@@ -54,8 +55,8 @@ class SongAddRequest{
     public String getOrigin_url() {
         return origin_url;
     }
-    public String[] getSingers(){
-        return (String[]) singers.toArray();
+    public ArrayList<String> getSingers(){
+        return singers;
     }
     public Iterator<String> getSingerIter(){
         return singers.iterator();
@@ -141,28 +142,6 @@ class AddSingleSongToListRequest {
         return song_album;
     }
 }
-class AddSingleTokenToSongRequest {
-    private String song_name;
-    private String song_album;
-    private String token;
-    public AddSingleTokenToSongRequest(String sname, String salbum, String token){
-        this.song_name= sname;
-        this.song_album = salbum;
-        this.token=token;
-    }
-
-    public String getSong_name() {
-        return song_name;
-    }
-
-    public String getSong_album() {
-        return song_album;
-    }
-
-    public String getToken() {
-        return token;
-    }
-}
 class AddSongIntroRequest{
     private String intro;
     private String song_name;
@@ -175,6 +154,44 @@ class AddSongIntroRequest{
 
     public String getIntro() {
         return intro;
+    }
+
+    public String getSong_name() {
+        return song_name;
+    }
+
+    public String getSong_album() {
+        return song_album;
+    }
+}
+class CommentAddRequest{
+    private String comment;
+    private String song_name;
+    private String song_album;
+    public CommentAddRequest(String comment, String sname, String salbum){
+        this.comment = comment;
+        this.song_name = sname;
+        this.song_album = salbum;
+    }
+
+    public String getSong_name() {
+        return song_name;
+    }
+
+    public String getSong_album() {
+        return song_album;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+}
+class ShowCommentRequest {
+    private String song_name;
+    private String song_album;
+    public ShowCommentRequest(String sname, String salbum){
+        this.song_name = sname;
+        this.song_album = salbum;
     }
 
     public String getSong_name() {
